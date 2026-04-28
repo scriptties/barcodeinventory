@@ -32,14 +32,27 @@ try {
     // ── Save Barcode Image ────────────────────────────────────────────────
     $barcodeImagePath = null;
     if (!empty($_POST['barcode_image_base64'])) {
-        $data    = preg_replace('#^data:image/\w+;base64,#i', '', $_POST['barcode_image_base64']);
-        $imgData = base64_decode($data);
-        if ($imgData !== false) {
-            $dir = __DIR__ . '/../uploads/barcodes/';
-            if (!is_dir($dir)) mkdir($dir, 0755, true);
-            $filename         = 'barcode_' . time() . '_' . rand(1000,9999) . '.png';
-            file_put_contents($dir . $filename, $imgData);
-            $barcodeImagePath = 'uploads/barcodes/' . $filename;
+        $val = $_POST['barcode_image_base64'];
+        if (strpos($val, 'uploads/') === 0) {
+            // Already a file on server
+            $oldPath = __DIR__ . '/../' . $val;
+            if (file_exists($oldPath)) {
+                $dir = __DIR__ . '/../uploads/barcodes/';
+                if (!is_dir($dir)) mkdir($dir, 0755, true);
+                $filename = 'barcode_' . time() . '_' . rand(1000,9999) . '.jpg';
+                rename($oldPath, $dir . $filename);
+                $barcodeImagePath = 'uploads/barcodes/' . $filename;
+            }
+        } else {
+            $data    = preg_replace('#^data:image/\w+;base64,#i', '', $val);
+            $imgData = base64_decode($data);
+            if ($imgData !== false) {
+                $dir = __DIR__ . '/../uploads/barcodes/';
+                if (!is_dir($dir)) mkdir($dir, 0755, true);
+                $filename         = 'barcode_' . time() . '_' . rand(1000,9999) . '.png';
+                file_put_contents($dir . $filename, $imgData);
+                $barcodeImagePath = 'uploads/barcodes/' . $filename;
+            }
         }
     }
 
@@ -58,14 +71,26 @@ try {
             $photoBase64 = 'data:image/' . $ext . ';base64,' . base64_encode(file_get_contents($dir . $filename));
         }
     } elseif (!empty($_POST['photo_base64'])) {
-        // Camera capture
-        $photoBase64 = $_POST['photo_base64'];
-        $data    = preg_replace('#^data:image/\w+;base64,#i', '', $photoBase64);
-        $imgData = base64_decode($data);
-        if ($imgData !== false) {
-            $filename  = 'photo_' . time() . '_' . rand(1000,9999) . '.jpg';
-            file_put_contents($dir . $filename, $imgData);
-            $photoPath = 'uploads/photos/' . $filename;
+        // Camera capture or existing server file
+        $val = $_POST['photo_base64'];
+        if (strpos($val, 'uploads/') === 0) {
+            $oldPath = __DIR__ . '/../' . $val;
+            if (file_exists($oldPath)) {
+                $filename = 'photo_' . time() . '_' . rand(1000,9999) . '.jpg';
+                // If it's already in barcodes or temp, we copy it to photos
+                copy($oldPath, $dir . $filename);
+                $photoPath = 'uploads/photos/' . $filename;
+                $photoBase64 = 'data:image/jpg;base64,' . base64_encode(file_get_contents($dir . $filename));
+            }
+        } else {
+            $photoBase64 = $val;
+            $data    = preg_replace('#^data:image/\w+;base64,#i', '', $photoBase64);
+            $imgData = base64_decode($data);
+            if ($imgData !== false) {
+                $filename  = 'photo_' . time() . '_' . rand(1000,9999) . '.jpg';
+                file_put_contents($dir . $filename, $imgData);
+                $photoPath = 'uploads/photos/' . $filename;
+            }
         }
     } elseif (!empty($_POST['photo_url'])) {
         // URL fetch

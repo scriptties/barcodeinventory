@@ -213,8 +213,8 @@ header {
 .barcode-scanner-box:hover { border-color: var(--accent); background: rgba(2,132,199,0.04); }
 .scanner-preview { 
   position: relative; 
-  width: 100%; 
-  min-height: 300px; /* Ensure a good minimum size for AI processing */
+  width: 100% !important; 
+  height: 350px !important;
   border-radius: 16px; 
   overflow: hidden; 
   background: #000; 
@@ -222,16 +222,20 @@ header {
   border: 2px solid var(--accent);
   box-shadow: 0 0 20px rgba(2,132,199,0.2);
 }
-  z-index: 20; 
-  pointer-events: none; 
+#quagga-container {
+  width: 100% !important;
+  height: 100% !important;
 }
-#qr-reader {
-  border: none !important;
-}
-#qr-reader video {
+#quagga-container video, #quagga-container canvas {
   width: 100% !important;
   height: 100% !important;
   object-fit: cover !important;
+  position: absolute !important;
+  top: 0 !important;
+  left: 0 !important;
+}
+#quagga-container canvas.drawingBuffer {
+  z-index: 5 !important;
 }
 #qr-reader__scan_region {
   background: #000 !important;
