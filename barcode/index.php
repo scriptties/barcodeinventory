@@ -25,8 +25,8 @@
   <!-- ── Header ── -->
   <header>
     <div class="logo">
-      <div class="logo-icon">📦</div>
-      <h1>Barcode <span>Inventory</span></h1>
+      <div class="logo-icon"><img src="alnasser_nobg.png" width="40" height="auto"></div>
+      <h1>Inventory <span>Alnasser</span></h1>
     </div>
     <button id="addItemBtn" class="btn btn-primary">
       <span>＋</span> Add Item
